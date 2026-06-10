@@ -53,3 +53,16 @@ export function fmtSignedCurrency(value: number): string {
   const sign = value > 0 ? '+' : '';
   return sign + currencyFmt.format(value);
 }
+
+/** Short date, e.g. 2026-06-09 -> "Jun 9, 2026". Passes through unparsable. */
+export function fmtDate(iso: string | undefined): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+}

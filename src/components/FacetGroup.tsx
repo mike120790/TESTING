@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import type { FacetKey } from '../types/position';
 import type { FacetOption } from '../state/facets';
 
 interface Props {
-  facetKey: FacetKey;
+  facetKey: string;
   label: string;
   options: FacetOption[];
   selected: Set<string> | undefined;
-  onToggle: (key: FacetKey, value: string) => void;
-  onClear: (key: FacetKey) => void;
+  onToggle: (key: string, value: string) => void;
+  onClear: (key: string) => void;
 }
 
 /** One collapsible facet dimension rendered as a checkbox list with counts. */

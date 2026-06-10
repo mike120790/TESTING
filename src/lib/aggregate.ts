@@ -1,4 +1,6 @@
 import type { Position } from '../types/position';
+import type { Trade } from '../types/trade';
+import { isBuySide } from '../data/tradeMapping';
 
 export interface PortfolioTotals {
   marketValue: number;
@@ -31,5 +33,38 @@ export function computeTotals(positions: Position[]): PortfolioTotals {
     unrealizedPnlPct,
     positionCount: positions.length,
     accountCount: accounts.size,
+  };
+}
+
+export interface TradeStats {
+  tradeCount: number;
+  buyNotional: number;
+  sellNotional: number;
+  netNotional: number; // buy - sell
+  totalCommission: number;
+  filledCount: number;
+}
+
+/** Roll up trade-blotter stats across a set of trades (the filtered rows). */
+export function computeTradeStats(trades: Trade[]): TradeStats {
+  let buyNotional = 0;
+  let sellNotional = 0;
+  let totalCommission = 0;
+  let filledCount = 0;
+
+  for (const t of trades) {
+    if (isBuySide(t.side)) buyNotional += t.grossAmount;
+    else sellNotional += t.grossAmount;
+    totalCommission += t.commission;
+    if (t.status === 'Filled') filledCount++;
+  }
+
+  return {
+    tradeCount: trades.length,
+    buyNotional,
+    sellNotional,
+    netNotional: buyNotional - sellNotional,
+    totalCommission,
+    filledCount,
   };
 }

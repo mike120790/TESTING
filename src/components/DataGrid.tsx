@@ -1,29 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import type { Position } from '../types/position';
-import { positionColumns } from './columns';
 
-interface Props {
-  rows: Position[];
+interface Props<T> {
+  rows: T[];
+  columns: ColumnDef<T>[];
+  initialSort: SortingState;
+  emptyMessage?: string;
 }
 
 /**
- * Dense, sortable positions grid. Faceting/search happen upstream (the `rows`
- * are already filtered); this component owns only column sorting via TanStack's
- * sorted row model. Header click cycles asc -> desc -> none.
+ * Dense, sortable grid shared by the positions and activity views. Faceting and
+ * search happen upstream (the `rows` are already filtered); this component owns
+ * only column sorting. Header click cycles asc -> desc -> none.
  */
-export function PositionsGrid({ rows }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: 'marketValue', desc: true },
-  ]);
-
-  const columns = useMemo(() => positionColumns, []);
+export function DataGrid<T>({
+  rows,
+  columns,
+  initialSort,
+  emptyMessage = 'No rows match the current filters.',
+}: Props<T>) {
+  const [sorting, setSorting] = useState<SortingState>(initialSort);
 
   const table = useReactTable({
     data: rows,
@@ -87,7 +90,7 @@ export function PositionsGrid({ rows }: Props) {
           {rows.length === 0 && (
             <tr>
               <td className="empty" colSpan={columns.length}>
-                No positions match the current filters.
+                {emptyMessage}
               </td>
             </tr>
           )}

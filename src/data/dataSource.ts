@@ -1,74 +1,78 @@
 import type { Position, RawRow } from '../types/position';
+import type { Trade } from '../types/trade';
 import { parseCsv } from './csvParser';
+import { positionSpec } from './columnMapping';
+import { tradeSpec } from './tradeMapping';
 import {
-  DEFAULT_MAPPING,
   inferMapping,
   isMappingComplete,
-  mapRows,
+  mapAndDerive,
   type FieldMapping,
-} from './columnMapping';
-import { deriveFields } from './normalize';
+  type MappingSpec,
+} from './mappingSpec';
 
 /**
  * The single ingestion seam. Everything in the UI depends only on this
- * interface, so swapping the sample CSV for a REST/WebSocket/DB source later is
- * a one-file change: implement `DataSource.load` and point `activeDataSource`
- * at it.
+ * interface, so swapping a sample CSV for a REST/WebSocket/DB source later is a
+ * one-file change: implement `DataSource.load` and point the relevant source at
+ * it.
  */
-export interface DataSource {
-  load(): Promise<Position[]>;
+export interface DataSource<T> {
+  load(): Promise<T[]>;
 }
 
-/** Run mapped rows through the derive step to fill P&L / weight. */
-function finalize(rows: RawRow[], mapping: FieldMapping): Position[] {
-  return deriveFields(mapRows(rows, mapping));
+/** Fetch a baked-in sample CSV from /public/data and map it through a spec. */
+function sampleCsvSource<T>(file: string, spec: MappingSpec<T>): DataSource<T> {
+  return {
+    async load() {
+      const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`);
+      if (!res.ok) throw new Error(`Failed to load ${file}: ${res.status}`);
+      const rows = await parseCsv(await res.text());
+      return mapAndDerive(rows, spec.defaultMapping, spec);
+    },
+  };
 }
 
-/** Default v1 source: the baked-in sample export shipped in /public/data. */
-export const sampleCsvDataSource: DataSource = {
-  async load() {
-    const res = await fetch(`${import.meta.env.BASE_URL}data/sample-positions.csv`);
-    if (!res.ok) throw new Error(`Failed to load sample data: ${res.status}`);
-    const text = await res.text();
-    const rows = await parseCsv(text);
-    return finalize(rows, DEFAULT_MAPPING);
-  },
-};
+/** Default v1 sources: baked-in sample exports shipped in /public/data. */
+export const positionsDataSource: DataSource<Position> = sampleCsvSource(
+  'sample-positions.csv',
+  positionSpec,
+);
+export const tradesDataSource: DataSource<Trade> = sampleCsvSource(
+  'sample-trades.csv',
+  tradeSpec,
+);
 
-/** Active source the app loads on startup. Swap here to wire a real backend. */
-export const activeDataSource: DataSource = sampleCsvDataSource;
-
-export interface ImportResult {
-  /** Parsed positions, ready for the grid. */
-  positions: Position[];
-  /** Mapping that was used (auto-inferred). */
-  mapping: FieldMapping;
-  /** Raw rows, retained so the column-map dialog can re-map if needed. */
+export interface ImportResult<T> {
+  positions: T[];
+  mapping: FieldMapping<T>;
   rawRows: RawRow[];
-  /** Detected source headers. */
   headers: string[];
-  /** True when every required field was auto-matched. */
   complete: boolean;
 }
 
 /**
- * Parse a user-uploaded CSV/Excel file. Auto-infers the column mapping; the
- * caller inspects `complete` and opens the remap dialog when needed. Re-mapping
- * later just calls `applyMapping` with the retained `rawRows`.
+ * Parse a user-uploaded CSV/Excel file against a mapping spec. Auto-infers the
+ * column mapping; the caller inspects `complete` and opens the remap dialog when
+ * required fields can't be matched.
  */
-export async function importFile(file: File): Promise<ImportResult> {
+export async function importFile<T>(
+  file: File,
+  spec: MappingSpec<T>,
+): Promise<ImportResult<T>> {
   const isExcel = /\.xlsx?$/i.test(file.name);
   // Excel support pulls in the heavy exceljs dependency; load it on demand so
   // it never lands in the initial bundle (the common path is CSV).
   const rawRows = isExcel
     ? await import('./excelParser').then((m) => m.parseExcel(file))
     : await parseCsv(file);
+
   const headers = rawRows.length > 0 ? Object.keys(rawRows[0]) : [];
-  const mapping = inferMapping(headers);
-  const complete = isMappingComplete(mapping);
+  const mapping = inferMapping(headers, spec);
+  const complete = isMappingComplete(mapping, spec);
 
   return {
-    positions: complete ? finalize(rawRows, mapping) : [],
+    positions: complete ? mapAndDerive(rawRows, mapping, spec) : [],
     mapping,
     rawRows,
     headers,
@@ -77,9 +81,10 @@ export async function importFile(file: File): Promise<ImportResult> {
 }
 
 /** Apply a (possibly user-edited) mapping to already-parsed raw rows. */
-export function applyMapping(
+export function applyMapping<T>(
   rawRows: RawRow[],
-  mapping: FieldMapping,
-): Position[] {
-  return finalize(rawRows, mapping);
+  mapping: FieldMapping<T>,
+  spec: MappingSpec<T>,
+): T[] {
+  return mapAndDerive(rawRows, mapping, spec);
 }

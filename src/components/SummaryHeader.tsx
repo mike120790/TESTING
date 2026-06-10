@@ -1,16 +1,36 @@
 import { useMemo } from 'react';
 import type { Position } from '../types/position';
-import { computeTotals } from '../lib/aggregate';
-import { fmtCurrency, fmtNumber, fmtPercent, fmtSignedCurrency } from '../lib/format';
+import type { Trade } from '../types/trade';
+import { computeTotals, computeTradeStats } from '../lib/aggregate';
+import {
+  fmtCurrency,
+  fmtNumber,
+  fmtPercent,
+  fmtSignedCurrency,
+} from '../lib/format';
 
-interface Props {
-  rows: Position[];
+function Kpi({
+  label,
+  value,
+  valueClass = '',
+}: {
+  label: string;
+  value: string;
+  valueClass?: string;
+}) {
+  return (
+    <div className="kpi">
+      <span className="kpi-label">{label}</span>
+      <span className={`kpi-value ${valueClass}`}>{value}</span>
+    </div>
+  );
 }
 
-/** KPI strip computed live over the currently filtered rows. */
-export function SummaryHeader({ rows }: Props) {
+/** KPI strip for the positions view, computed over the filtered rows. */
+export function PositionSummary({ rows }: { rows: Position[] }) {
   const t = useMemo(() => computeTotals(rows), [rows]);
-  const pnlCls = t.unrealizedPnl > 0 ? 'pnl-pos' : t.unrealizedPnl < 0 ? 'pnl-neg' : '';
+  const pnlCls =
+    t.unrealizedPnl > 0 ? 'pnl-pos' : t.unrealizedPnl < 0 ? 'pnl-neg' : '';
 
   return (
     <div className="summary">
@@ -28,19 +48,19 @@ export function SummaryHeader({ rows }: Props) {
   );
 }
 
-function Kpi({
-  label,
-  value,
-  valueClass = '',
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
+/** KPI strip for the activity view, computed over the filtered trades. */
+export function TradeSummary({ rows }: { rows: Trade[] }) {
+  const s = useMemo(() => computeTradeStats(rows), [rows]);
+  const netCls = s.netNotional > 0 ? 'pnl-pos' : s.netNotional < 0 ? 'pnl-neg' : '';
+
   return (
-    <div className="kpi">
-      <span className="kpi-label">{label}</span>
-      <span className={`kpi-value ${valueClass}`}>{value}</span>
+    <div className="summary">
+      <Kpi label="Trades" value={fmtNumber(s.tradeCount)} />
+      <Kpi label="Buy Notional" value={fmtCurrency(s.buyNotional)} valueClass="pnl-pos" />
+      <Kpi label="Sell Notional" value={fmtCurrency(s.sellNotional)} valueClass="pnl-neg" />
+      <Kpi label="Net" value={fmtSignedCurrency(s.netNotional)} valueClass={netCls} />
+      <Kpi label="Commission" value={fmtCurrency(s.totalCommission)} />
+      <Kpi label="Filled" value={`${s.filledCount} / ${s.tradeCount}`} />
     </div>
   );
 }

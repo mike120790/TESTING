@@ -1,14 +1,25 @@
-import { usePositions } from './state/usePositions';
-import { useFilters } from './state/useFilters';
-import { SummaryHeader } from './components/SummaryHeader';
-import { Toolbar } from './components/Toolbar';
-import { FilterSidebar } from './components/FilterSidebar';
-import { PositionsGrid } from './components/PositionsGrid';
+import { useState } from 'react';
+import { useDataset } from './state/useDataset';
+import { positionsDataSource, tradesDataSource } from './data/dataSource';
+import { positionSpec } from './data/columnMapping';
+import { tradeSpec } from './data/tradeMapping';
+import { positionColumns } from './components/columns';
+import { tradeColumns } from './components/tradeColumns';
+import { PositionSummary, TradeSummary } from './components/SummaryHeader';
+import { DashboardView } from './components/DashboardView';
+import {
+  POSITION_FACETS,
+  POSITION_SEARCH_FIELDS,
+  TRADE_FACETS,
+  TRADE_SEARCH_FIELDS,
+} from './viewConfig';
+
+type View = 'positions' | 'activity';
 
 export default function App() {
-  const { positions, loading, error, sourceName, replacePositions } =
-    usePositions();
-  const filters = useFilters(positions);
+  const positions = useDataset(positionsDataSource, 'Sample portfolio');
+  const trades = useDataset(tradesDataSource, 'Sample blotter');
+  const [view, setView] = useState<View>('positions');
 
   return (
     <div className="app">
@@ -16,37 +27,51 @@ export default function App() {
         <div className="brand">
           <span className="brand-mark">◆</span>
           <span className="brand-name">OMS</span>
-          <span className="brand-sub">Positions Dashboard</span>
+          <span className="brand-sub">Dashboard</span>
         </div>
-        <SummaryHeader rows={filters.filtered} />
+        <nav className="tabs">
+          <button
+            className={`tab ${view === 'positions' ? 'active' : ''}`}
+            onClick={() => setView('positions')}
+          >
+            Positions
+          </button>
+          <button
+            className={`tab ${view === 'activity' ? 'active' : ''}`}
+            onClick={() => setView('activity')}
+          >
+            Activity
+          </button>
+        </nav>
       </header>
 
-      <Toolbar
-        search={filters.search}
-        onSearch={filters.setSearch}
-        visibleCount={filters.filtered.length}
-        totalCount={positions.length}
-        activeFilterCount={filters.activeCount}
-        onClearAll={filters.clearAll}
-        sourceName={sourceName}
-        onLoaded={replacePositions}
-      />
-
-      <div className="body">
-        <FilterSidebar
-          facets={filters.facets}
-          selections={filters.selections}
-          activeCount={filters.activeCount}
-          onToggle={filters.toggleFacet}
-          onClearFacet={filters.clearFacet}
-          onClearAll={filters.clearAll}
+      {view === 'positions' ? (
+        <DashboardView
+          data={positions}
+          facetDefs={POSITION_FACETS}
+          searchFields={POSITION_SEARCH_FIELDS}
+          columns={positionColumns}
+          initialSort={[{ id: 'marketValue', desc: true }]}
+          importSpec={positionSpec}
+          importLabel="Import positions (CSV / Excel)"
+          rowNoun="positions"
+          renderSummary={(rows) => <PositionSummary rows={rows} />}
+          emptyMessage="No positions match the current filters."
         />
-        <main className="content">
-          {loading && <div className="state-msg">Loading positions…</div>}
-          {error && <div className="state-msg error">Error: {error}</div>}
-          {!loading && !error && <PositionsGrid rows={filters.filtered} />}
-        </main>
-      </div>
+      ) : (
+        <DashboardView
+          data={trades}
+          facetDefs={TRADE_FACETS}
+          searchFields={TRADE_SEARCH_FIELDS}
+          columns={tradeColumns}
+          initialSort={[{ id: 'tradeDate', desc: true }]}
+          importSpec={tradeSpec}
+          importLabel="Import trades (CSV / Excel)"
+          rowNoun="trades"
+          renderSummary={(rows) => <TradeSummary rows={rows} />}
+          emptyMessage="No trades match the current filters."
+        />
+      )}
     </div>
   );
 }

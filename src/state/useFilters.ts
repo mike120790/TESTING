@@ -1,45 +1,44 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FACET_KEYS, type FacetKey, type Position } from '../types/position';
 import { computeFacets, type FacetOptions } from './facets';
 
-/** Selected values per facet dimension. */
-export type FacetSelections = Partial<Record<FacetKey, Set<string>>>;
+/** A filterable dimension: which field it reads and how to label it. */
+export interface FacetDef<T> {
+  key: keyof T & string;
+  label: string;
+}
 
-export interface FiltersState {
+/** Selected values per facet field (keyed by the field name). */
+export type FacetSelections = Record<string, Set<string>>;
+
+export interface FiltersState<T> {
   search: string;
   setSearch: (s: string) => void;
   selections: FacetSelections;
-  toggleFacet: (key: FacetKey, value: string) => void;
-  clearFacet: (key: FacetKey) => void;
+  toggleFacet: (key: string, value: string) => void;
+  clearFacet: (key: string) => void;
   clearAll: () => void;
   /** Total number of selected facet values across all dimensions. */
   activeCount: number;
   /** Facet options (value + count) for the sidebar. */
   facets: FacetOptions;
   /** Rows after applying search + facet filters. */
-  filtered: Position[];
-}
-
-function matchesSearch(p: Position, q: string): boolean {
-  if (!q) return true;
-  const needle = q.toLowerCase();
-  return (
-    p.securityName.toLowerCase().includes(needle) ||
-    p.ticker.toLowerCase().includes(needle) ||
-    (p.identifier?.toLowerCase().includes(needle) ?? false)
-  );
+  filtered: T[];
 }
 
 /**
- * Owns filter state and derives the filtered row set. Within a facet, selected
- * values combine with OR; across facets they combine with AND. Search is a
- * case-insensitive substring over name / ticker / identifier.
+ * Generic faceted-filter engine. Within a facet, selected values combine with
+ * OR; across facets they combine with AND. Search is a case-insensitive
+ * substring over the configured `searchFields`.
  */
-export function useFilters(positions: Position[]): FiltersState {
+export function useFilters<T>(
+  rows: T[],
+  facetDefs: FacetDef<T>[],
+  searchFields: (keyof T)[],
+): FiltersState<T> {
   const [search, setSearch] = useState('');
   const [selections, setSelections] = useState<FacetSelections>({});
 
-  const toggleFacet = useCallback((key: FacetKey, value: string) => {
+  const toggleFacet = useCallback((key: string, value: string) => {
     setSelections((prev) => {
       const next: FacetSelections = { ...prev };
       const set = new Set(next[key] ?? []);
@@ -51,7 +50,7 @@ export function useFilters(positions: Position[]): FiltersState {
     });
   }, []);
 
-  const clearFacet = useCallback((key: FacetKey) => {
+  const clearFacet = useCallback((key: string) => {
     setSelections((prev) => {
       const next = { ...prev };
       delete next[key];
@@ -64,23 +63,40 @@ export function useFilters(positions: Position[]): FiltersState {
     setSearch('');
   }, []);
 
-  const facets = useMemo(() => computeFacets(positions), [positions]);
+  const facetKeys = useMemo(() => facetDefs.map((d) => d.key), [facetDefs]);
+
+  const facets = useMemo(
+    () => computeFacets(rows, facetKeys),
+    [rows, facetKeys],
+  );
+
+  const matchesSearch = useCallback(
+    (row: T, q: string): boolean => {
+      if (!q) return true;
+      const needle = q.toLowerCase();
+      return searchFields.some((f) => {
+        const v = row[f];
+        return v != null && String(v).toLowerCase().includes(needle);
+      });
+    },
+    [searchFields],
+  );
 
   const filtered = useMemo(() => {
-    const activeKeys = FACET_KEYS.filter((k) => (selections[k]?.size ?? 0) > 0);
-    return positions.filter((p) => {
-      if (!matchesSearch(p, search)) return false;
+    const activeKeys = facetKeys.filter((k) => (selections[k]?.size ?? 0) > 0);
+    return rows.filter((row) => {
+      if (!matchesSearch(row, search)) return false;
       for (const key of activeKeys) {
         const set = selections[key]!;
-        if (!set.has(String(p[key] ?? ''))) return false;
+        if (!set.has(String(row[key] ?? ''))) return false;
       }
       return true;
     });
-  }, [positions, selections, search]);
+  }, [rows, selections, search, facetKeys, matchesSearch]);
 
   const activeCount = useMemo(
     () =>
-      FACET_KEYS.reduce((sum, k) => sum + (selections[k]?.size ?? 0), 0),
+      Object.values(selections).reduce((sum, set) => sum + set.size, 0),
     [selections],
   );
 

@@ -1,25 +1,30 @@
 # OMS Positions Dashboard
 
 A simplified Order Management System (OMS) style dashboard — a pared-down take on
-tools like IVP, Allvue, and Aladdin. It shows portfolio **positions** in a dense,
-professional grid and lets you **filter and sort** by investment type, sector,
-asset class, account, and currency.
+tools like IVP, Allvue, and Aladdin. It shows portfolio **positions** and trade
+**activity** in dense, professional grids and lets you **filter and sort** by
+investment type, sector, asset class, account, side, status, and more.
 
 Built with **React + Vite + TypeScript**. Frontend-only — no server required.
 
 ## Features
 
-- **Positions grid** — dense, sortable table (click any column header to sort)
-  with right-aligned numerics and red/green unrealized P&L.
-- **Faceted filters** — left sidebar with checkbox groups for Account, Asset
-  Class, Investment Type, Sector, and Currency, each showing live value counts.
-  Selections combine with OR within a dimension and AND across dimensions.
-- **Global search** — substring match over security name, ticker, and identifier.
-- **Live summary** — total market value, cost basis, unrealized P&L (and %),
-  position and account counts, all recomputed over the currently filtered rows.
-- **CSV / Excel import** — drop in your own position export. Known column headers
-  are auto-detected; otherwise a column-mapping dialog lets you match your columns
-  to dashboard fields.
+- **Two views** — switch between **Positions** (current holdings) and **Activity**
+  (the trade blotter) from the tabs in the header.
+- **Dense, sortable grids** — click any column header to sort; right-aligned
+  numerics, red/green unrealized P&L, and color-coded trade side / status badges.
+- **Faceted filters** — left sidebar with checkbox groups (live value counts) per
+  dimension: Account, Asset Class, Investment Type, Sector, Currency for positions;
+  Account, Side, Asset Class, Order Type, Status, Currency for activity. Selections
+  combine with OR within a dimension and AND across dimensions.
+- **Global search** — substring match over name, ticker, identifier (and
+  trader/broker on the activity view).
+- **Live summary** — KPI strip recomputed over the currently filtered rows:
+  market value / cost / unrealized P&L for positions; trade count, buy & sell
+  notional, net, commission, and fill rate for activity.
+- **CSV / Excel import** — drop in your own position or trade export. Known column
+  headers are auto-detected; otherwise a column-mapping dialog lets you match your
+  columns to dashboard fields. The active view determines which export is expected.
 
 ## Getting started
 
@@ -28,9 +33,10 @@ npm install
 npm run dev      # start the dev server (prints a local URL)
 ```
 
-Then open the printed URL. The app loads a built-in sample portfolio
-(`public/data/sample-positions.csv`, ~45 holdings across 4 accounts and several
-asset classes) so it works immediately.
+Then open the printed URL. The app loads built-in sample data so it works
+immediately: a portfolio of ~45 holdings (`public/data/sample-positions.csv`) and
+a blotter of ~38 trades (`public/data/sample-trades.csv`), both spanning 4
+accounts and several asset classes.
 
 ```bash
 npm run build      # type-check + production build into dist/
@@ -40,37 +46,47 @@ npm run typecheck  # fast type-only check
 
 ## Using your own data
 
-Click **Import CSV / Excel** in the toolbar and select a `.csv`, `.xlsx`, or
-`.xls` file. Columns with recognizable headers (e.g. `Market Value`, `Cost
-Basis`, `Ticker`) are mapped automatically; anything unmatched can be assigned in
-the dialog. Required fields are **Security Name**, **Quantity**, and **Price** —
-market value, P&L, and portfolio weight are derived when not supplied.
+Switch to the view you want to load (Positions or Activity), click **Import** in
+the toolbar, and select a `.csv`, `.xlsx`, or `.xls` file. Columns with
+recognizable headers (e.g. `Market Value`, `Trade Date`, `Side`, `Ticker`) are
+mapped automatically; anything unmatched can be assigned in the column-map dialog.
+Derived fields (position P&L / weight, trade gross / net amounts) are computed when
+not supplied.
+
+- **Positions** require Security Name, Quantity, Price.
+- **Trades** require Trade Date, Security Name, Side, Quantity, Price.
 
 ## Architecture
 
-The data ingestion layer is isolated behind a single seam so the source can be
-swapped without touching the UI:
+The grid, faceted-filter, and CSV/Excel import machinery are all **generic over the
+row type**, so the Positions and Activity views are two configurations of the same
+engine rather than duplicated code. Each view supplies a `MappingSpec` (how to
+ingest a file) and a small view config (facets, search fields, columns).
 
 ```
 src/
-  types/position.ts        Position model, asset-class/investment-type enums, facet keys
+  types/        position.ts, trade.ts        Domain models + enums
   data/
-    dataSource.ts          DataSource interface + active source (swap here for an API/DB)
-    csvParser.ts           PapaParse wrapper  -> RawRow[]
-    excelParser.ts         SheetJS wrapper    -> RawRow[]
-    columnMapping.ts       Header aliases, auto-mapping, RawRow -> Position
-    normalize.ts           Number coercion, derived P&L / weight
+    dataSource.ts     DataSource<T> seam + sample sources + generic import flow
+    mappingSpec.ts    MappingSpec<T>: aliases, auto-detect, required-field checks
+    columnMapping.ts  positionSpec (Position ingestion)
+    tradeMapping.ts   tradeSpec (Trade ingestion)
+    csvParser.ts      PapaParse  -> RawRow[]
+    excelParser.ts    ExcelJS    -> RawRow[]   (code-split, loaded on demand)
+    normalize.ts      Number coercion, derived position fields
   state/
-    usePositions.ts        Owns the raw Position[]; loads default source on mount
-    useFilters.ts          Facet + search state, memoized filtered rows
-    facets.ts              Distinct values + counts per dimension
-  components/              SummaryHeader, Toolbar, FilterSidebar, FacetGroup,
-                           PositionsGrid, columns, FileImport, ColumnMapDialog
+    useDataset.ts     Owns a typed row set; loads its source on mount (generic)
+    useFilters.ts     Generic faceted filter + search engine
+    facets.ts         Distinct values + counts per field (generic)
+  components/          DashboardView (per-view shell), DataGrid, FilterSidebar,
+                      FacetGroup, Toolbar, FileImport, ColumnMapDialog,
+                      SummaryHeader (Position/Trade summaries), columns, tradeColumns
+  viewConfig.ts       Facet defs + search fields per view
 ```
 
 To connect a real backend later, implement `DataSource.load()` in
-`src/data/dataSource.ts` and point `activeDataSource` at it — nothing else needs
-to change.
+`src/data/dataSource.ts` (e.g. `positionsDataSource`) and point it at your API or
+database — nothing else needs to change.
 
 ## Tech
 

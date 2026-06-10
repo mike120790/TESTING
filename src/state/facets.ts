@@ -1,37 +1,31 @@
-import { FACET_KEYS, type FacetKey, type Position } from '../types/position';
-
 export interface FacetOption {
   value: string;
   count: number;
 }
 
-export type FacetOptions = Record<FacetKey, FacetOption[]>;
+/** Facet options keyed by the (stringified) field name. */
+export type FacetOptions = Record<string, FacetOption[]>;
 
 /**
- * Walk the dataset once and build, for each facet dimension, the distinct
- * values with their occurrence counts (sorted by count desc, then value).
- * `selected` reflects active filters but counts are computed over the full
- * dataset for a stable, predictable sidebar (classic OR-within-facet UX).
+ * Walk a dataset once and build, for each requested field, the distinct values
+ * with their occurrence counts (sorted by count desc, then value). Generic over
+ * the row type so it serves both positions and the trade blotter.
  */
-export function computeFacets(positions: Position[]): FacetOptions {
-  const maps: Record<FacetKey, Map<string, number>> = {
-    account: new Map(),
-    assetClass: new Map(),
-    investmentType: new Map(),
-    sector: new Map(),
-    currency: new Map(),
-  };
+export function computeFacets<T>(rows: T[], keys: (keyof T)[]): FacetOptions {
+  const maps = new Map<keyof T, Map<string, number>>();
+  for (const k of keys) maps.set(k, new Map());
 
-  for (const p of positions) {
-    for (const key of FACET_KEYS) {
-      const value = String(p[key] ?? '');
-      maps[key].set(value, (maps[key].get(value) ?? 0) + 1);
+  for (const row of rows) {
+    for (const k of keys) {
+      const value = String(row[k] ?? '');
+      const m = maps.get(k)!;
+      m.set(value, (m.get(value) ?? 0) + 1);
     }
   }
 
-  const out = {} as FacetOptions;
-  for (const key of FACET_KEYS) {
-    out[key] = [...maps[key].entries()]
+  const out: FacetOptions = {};
+  for (const k of keys) {
+    out[String(k)] = [...maps.get(k)!.entries()]
       .map(([value, count]) => ({ value, count }))
       .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value));
   }

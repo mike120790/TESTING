@@ -58,29 +58,5 @@ export interface Position {
   asOfDate?: string; // ISO date of the snapshot
 }
 
-/** Dimensions exposed as faceted filters in the sidebar. */
-export type FacetKey =
-  | 'account'
-  | 'assetClass'
-  | 'investmentType'
-  | 'sector'
-  | 'currency';
-
-export const FACET_KEYS: FacetKey[] = [
-  'account',
-  'assetClass',
-  'investmentType',
-  'sector',
-  'currency',
-];
-
-export const FACET_LABELS: Record<FacetKey, string> = {
-  account: 'Account',
-  assetClass: 'Asset Class',
-  investmentType: 'Investment Type',
-  sector: 'Sector',
-  currency: 'Currency',
-};
-
 /** Loosely-typed row as it comes out of a CSV/Excel parser. */
 export type RawRow = Record<string, string | number | null | undefined>;

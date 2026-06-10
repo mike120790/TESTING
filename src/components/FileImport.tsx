@@ -1,27 +1,29 @@
 import { useRef, useState } from 'react';
-import type { Position, RawRow } from '../types/position';
+import type { RawRow } from '../types/position';
 import { applyMapping, importFile } from '../data/dataSource';
-import type { FieldMapping } from '../data/columnMapping';
+import type { FieldMapping, MappingSpec } from '../data/mappingSpec';
 import { ColumnMapDialog } from './ColumnMapDialog';
 
-interface Props {
-  onLoaded: (positions: Position[], sourceName: string) => void;
+interface Props<T> {
+  spec: MappingSpec<T>;
+  label: string;
+  onLoaded: (rows: T[], sourceName: string) => void;
 }
 
-interface PendingMap {
+interface PendingMap<T> {
   fileName: string;
   headers: string[];
-  mapping: FieldMapping;
+  mapping: FieldMapping<T>;
   rawRows: RawRow[];
 }
 
 /**
- * Upload control for CSV/Excel position exports. Auto-maps known headers; when
- * required columns can't be matched it opens the column-map dialog.
+ * Upload control for CSV/Excel exports. Auto-maps known headers via the given
+ * spec; when required columns can't be matched it opens the column-map dialog.
  */
-export function FileImport({ onLoaded }: Props) {
+export function FileImport<T>({ spec, label, onLoaded }: Props<T>) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [pending, setPending] = useState<PendingMap | null>(null);
+  const [pending, setPending] = useState<PendingMap<T> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFiles = async (files: FileList | null) => {
@@ -29,7 +31,7 @@ export function FileImport({ onLoaded }: Props) {
     if (!file) return;
     setError(null);
     try {
-      const result = await importFile(file);
+      const result = await importFile(file, spec);
       if (result.complete) {
         onLoaded(result.positions, file.name);
       } else {
@@ -47,17 +49,16 @@ export function FileImport({ onLoaded }: Props) {
     }
   };
 
-  const applyAndClose = (mapping: FieldMapping) => {
+  const applyAndClose = (mapping: FieldMapping<T>) => {
     if (!pending) return;
-    const positions = applyMapping(pending.rawRows, mapping);
-    onLoaded(positions, pending.fileName);
+    onLoaded(applyMapping(pending.rawRows, mapping, spec), pending.fileName);
     setPending(null);
   };
 
   return (
     <>
       <label className="btn btn-import">
-        Import CSV / Excel
+        {label}
         <input
           ref={inputRef}
           type="file"
@@ -72,6 +73,7 @@ export function FileImport({ onLoaded }: Props) {
           fileName={pending.fileName}
           headers={pending.headers}
           initialMapping={pending.mapping}
+          spec={spec}
           onApply={applyAndClose}
           onCancel={() => setPending(null)}
         />
