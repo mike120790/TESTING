@@ -6,6 +6,8 @@ import { tradeSpec } from './data/tradeMapping';
 import { positionColumns } from './components/columns';
 import { tradeColumns } from './components/tradeColumns';
 import { PositionSummary, TradeSummary } from './components/SummaryHeader';
+import { PositionCharts } from './components/PositionCharts';
+import { TradeCharts } from './components/TradeCharts';
 import { DashboardView } from './components/DashboardView';
 import {
   POSITION_FACETS,
@@ -56,6 +58,7 @@ export default function App() {
           importLabel="Import positions (CSV / Excel)"
           rowNoun="positions"
           renderSummary={(rows) => <PositionSummary rows={rows} />}
+          renderCharts={(rows) => <PositionCharts rows={rows} />}
           emptyMessage="No positions match the current filters."
         />
       ) : (
@@ -69,6 +72,7 @@ export default function App() {
           importLabel="Import trades (CSV / Excel)"
           rowNoun="trades"
           renderSummary={(rows) => <TradeSummary rows={rows} />}
+          renderCharts={(rows) => <TradeCharts rows={rows} />}
           emptyMessage="No trades match the current filters."
         />
       )}

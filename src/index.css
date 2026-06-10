@@ -223,6 +223,130 @@ body {
   color: var(--neg);
   font-size: 12px;
 }
+.btn-toggle {
+  padding: 6px 10px;
+  color: var(--text-dim);
+}
+.btn-toggle.on {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* ---------- Charts panel ---------- */
+.charts-panel {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.chart-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 260px;
+  flex: 1;
+}
+.chart-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.donut {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.donut-svg {
+  flex-shrink: 0;
+}
+.donut-total {
+  text-anchor: middle;
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+.donut-caption {
+  text-anchor: middle;
+  fill: var(--text-faint);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.donut-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+}
+.donut-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 0;
+}
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.legend-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+.legend-pct {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
+.barlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+}
+.barlist li {
+  display: grid;
+  grid-template-columns: 96px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+.bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+.bar-track {
+  background: var(--bg);
+  border-radius: 3px;
+  height: 10px;
+  overflow: hidden;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+.bar-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
 
 /* ---------- Body layout ---------- */
 .body {

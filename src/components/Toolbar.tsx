@@ -13,6 +13,9 @@ interface Props<T> {
   importSpec: MappingSpec<T>;
   importLabel: string;
   onLoaded: (rows: T[], sourceName: string) => void;
+  /** When defined, render a charts toggle reflecting this shown/hidden state. */
+  chartsShown?: boolean;
+  onToggleCharts?: () => void;
 }
 
 /** Top toolbar: global search, row counts, clear-filters, and file import. */
@@ -28,6 +31,8 @@ export function Toolbar<T>({
   importSpec,
   importLabel,
   onLoaded,
+  chartsShown,
+  onToggleCharts,
 }: Props<T>) {
   return (
     <div className="toolbar">
@@ -49,6 +54,15 @@ export function Toolbar<T>({
         )}
       </div>
       <div className="toolbar-right">
+        {chartsShown !== undefined && onToggleCharts && (
+          <button
+            className={`btn btn-toggle ${chartsShown ? 'on' : ''}`}
+            onClick={onToggleCharts}
+            aria-pressed={chartsShown}
+          >
+            {chartsShown ? '▾' : '▸'} Charts
+          </button>
+        )}
         <span className="source-name" title="Active dataset">
           {sourceName}
         </span>

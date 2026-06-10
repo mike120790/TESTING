@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import type { DatasetState } from '../state/useDataset';
 import { useFilters, type FacetDef } from '../state/useFilters';
@@ -17,6 +17,7 @@ interface Props<T> {
   importLabel: string;
   rowNoun: string;
   renderSummary: (rows: T[]) => ReactNode;
+  renderCharts?: (rows: T[]) => ReactNode;
   emptyMessage?: string;
 }
 
@@ -35,9 +36,11 @@ export function DashboardView<T>({
   importLabel,
   rowNoun,
   renderSummary,
+  renderCharts,
   emptyMessage,
 }: Props<T>) {
   const filters = useFilters(data.rows, facetDefs, searchFields);
+  const [showCharts, setShowCharts] = useState(true);
 
   return (
     <div className="view">
@@ -55,7 +58,13 @@ export function DashboardView<T>({
         importSpec={importSpec}
         importLabel={importLabel}
         onLoaded={data.replace}
+        chartsShown={renderCharts ? showCharts : undefined}
+        onToggleCharts={() => setShowCharts((s) => !s)}
       />
+
+      {renderCharts && showCharts && (
+        <div className="charts-panel">{renderCharts(filters.filtered)}</div>
+      )}
 
       <div className="body">
         <FilterSidebar

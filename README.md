@@ -22,6 +22,10 @@ Built with **React + Vite + TypeScript**. Frontend-only — no server required.
 - **Live summary** — KPI strip recomputed over the currently filtered rows:
   market value / cost / unrealized P&L for positions; trade count, buy & sell
   notional, net, commission, and fill rate for activity.
+- **Allocation charts** — a collapsible panel of donut and bar breakdowns that
+  also respond to filters: allocation by asset class / account / sector for
+  positions; notional by side / asset class and trades by status for activity.
+  Rendered as lightweight inline SVG (no charting dependency).
 - **CSV / Excel import** — drop in your own position or trade export. Known column
   headers are auto-detected; otherwise a column-mapping dialog lets you match your
   columns to dashboard fields. The active view determines which export is expected.
