@@ -24,12 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Enables Pages (build type "workflow") via the API if not already on,
-      # so no manual repo-settings toggle is required.
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
