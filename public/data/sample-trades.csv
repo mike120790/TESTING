@@ -1,0 +1,39 @@
+Trade Date,Settle Date,Account,Security Name,Ticker,Identifier,Asset Class,Side,Order Type,Status,Currency,Quantity,Price,Commission,Broker,Trader
+2026-06-09,2026-06-11,GROWTH-FUND,Apple Inc.,AAPL,037833100,Equity,Buy,Limit,Filled,USD,3000,213.80,420,Goldman Sachs,J. Rivera
+2026-06-09,2026-06-11,GROWTH-FUND,NVIDIA Corp.,NVDA,67066G104,Equity,Buy,VWAP,Filled,USD,4000,137.60,560,Morgan Stanley,J. Rivera
+2026-06-09,2026-06-11,GROWTH-FUND,Tesla Inc.,TSLA,88160R101,Equity,Sell,Market,Filled,USD,1500,243.10,210,JPMorgan,J. Rivera
+2026-06-09,2026-06-11,INCOME-FUND,JPMorgan Chase & Co.,JPM,46625H100,Equity,Buy,Limit,Partially Filled,USD,2500,238.20,350,Citadel Securities,M. Chen
+2026-06-09,2026-06-11,INCOME-FUND,Exxon Mobil Corp.,XOM,30231G102,Equity,Buy,TWAP,Filled,USD,5000,112.10,500,Goldman Sachs,M. Chen
+2026-06-09,2026-06-11,INCOME-FUND,Verizon Communications,VZ,92343V104,Equity,Sell,Market,Filled,USD,8000,42.30,320,Bank of America,M. Chen
+2026-06-09,2026-06-11,BALANCED-SMA,Coca-Cola Co.,KO,191216100,Equity,Buy,Limit,Filled,USD,6000,71.10,240,UBS,A. Patel
+2026-06-09,2026-06-11,BALANCED-SMA,Caterpillar Inc.,CAT,149123101,Equity,Buy,Market,Filled,USD,1200,347.90,180,Jefferies,A. Patel
+2026-06-09,2026-06-11,HEDGE-OVERLAY,SPDR Gold Shares,GLD,78463V107,Commodity,Buy,Market,Filled,USD,2000,241.80,260,Morgan Stanley,K. Osei
+2026-06-09,2026-06-11,HEDGE-OVERLAY,Russell 2000 Put Dec25 2100,RUTW,RUT1225P,Derivative,Buy,Limit,Filled,USD,200,28.40,400,Goldman Sachs,K. Osei
+2026-06-06,2026-06-10,GROWTH-FUND,Microsoft Corp.,MSFT,594918104,Equity,Buy,VWAP,Filled,USD,1500,451.20,210,Morgan Stanley,J. Rivera
+2026-06-06,2026-06-10,GROWTH-FUND,Meta Platforms Inc.,META,30303M102,Equity,Buy,Limit,Filled,USD,900,510.40,140,Goldman Sachs,J. Rivera
+2026-06-06,2026-06-10,GROWTH-FUND,Amazon.com Inc.,AMZN,023135106,Equity,Sell,Market,Filled,USD,1200,200.50,180,JPMorgan,J. Rivera
+2026-06-06,2026-06-10,INCOME-FUND,US Treasury Note 4.25% 2030,T 4.25 30,91282CJL6,Fixed Income,Buy,Limit,Filled,USD,2000000,99.10,250,Citigroup,M. Chen
+2026-06-06,2026-06-10,INCOME-FUND,Apple Inc. 3.85% 2043,AAPL43,037833AL4,Fixed Income,Sell,Limit,Partially Filled,USD,1000000,88.40,200,Barclays,M. Chen
+2026-06-06,2026-06-10,BALANCED-SMA,ASML Holding NV,ASML,N07059202,Equity,Buy,VWAP,Filled,EUR,600,711.00,300,UBS,A. Patel
+2026-06-06,2026-06-10,BALANCED-SMA,Shell PLC ADR,SHEL,780259206,Equity,Sell,Market,Filled,GBP,4000,68.40,160,Barclays,A. Patel
+2026-06-05,2026-06-09,GROWTH-FUND,Broadcom Inc.,AVGO,11135F101,Equity,Buy,Limit,Filled,USD,1500,167.20,220,Jefferies,J. Rivera
+2026-06-05,2026-06-09,INCOME-FUND,Johnson & Johnson,JNJ,478160104,Equity,Buy,Market,Filled,USD,3000,159.40,200,Bank of America,M. Chen
+2026-06-05,2026-06-09,INCOME-FUND,Duke Energy Corp.,DUK,26441C204,Equity,Buy,Limit,Filled,USD,2500,116.20,150,UBS,M. Chen
+2026-06-05,2026-06-09,INCOME-FUND,Prologis Inc.,PLD,74340W103,Equity,Sell,Market,Filled,USD,2000,108.60,160,Morgan Stanley,M. Chen
+2026-06-05,2026-06-09,HEDGE-OVERLAY,E-mini S&P 500 Future Sep25,ESU5,ESU2025,Derivative,Sell,Market,Filled,USD,15,5580.00,180,Goldman Sachs,K. Osei
+2026-06-05,2026-06-09,HEDGE-OVERLAY,EUR/USD Forward Sep25,EURUSD-F,FX-EURUSD,FX,Buy,Market,Filled,USD,10,1.08,120,Citigroup,K. Osei
+2026-06-04,2026-06-06,GROWTH-FUND,Alphabet Inc. Class A,GOOGL,02079K305,Equity,Buy,VWAP,Filled,USD,2000,175.10,260,Morgan Stanley,J. Rivera
+2026-06-04,2026-06-06,GROWTH-FUND,SPDR S&P 500 ETF Trust,SPY,78462F103,Fund,Buy,Market,Filled,USD,1500,546.30,210,Goldman Sachs,J. Rivera
+2026-06-04,2026-06-06,INCOME-FUND,California State GO 5.0% 2035,CA-GO35,13063DRH0,Fixed Income,Buy,Limit,Pending,USD,500000,103.20,100,Citigroup,M. Chen
+2026-06-04,2026-06-06,BALANCED-SMA,Honeywell International,HON,438516106,Equity,Sell,Stop,Cancelled,USD,1000,213.00,0,Jefferies,A. Patel
+2026-06-04,2026-06-06,BALANCED-SMA,Nestle SA ADR,NSRGY,641069406,Equity,Buy,Limit,Filled,EUR,4000,98.10,200,UBS,A. Patel
+2026-06-03,2026-06-05,GROWTH-FUND,Eli Lilly & Co.,LLY,532457108,Equity,Buy,Limit,Filled,USD,500,818.20,180,Goldman Sachs,J. Rivera
+2026-06-03,2026-06-05,INCOME-FUND,Bank of America Preferred Ser L,BAC.PL,060505FN5,Equity,Buy,Limit,Filled,USD,2000,1178.00,300,Bank of America,M. Chen
+2026-06-03,2026-06-05,HEDGE-OVERLAY,10Y USD Interest Rate Swap,USD-IRS-10Y,SWP-USD10Y,Derivative,Buy,Market,Filled,USD,1,250000.00,500,JPMorgan,K. Osei
+2026-06-03,2026-06-05,HEDGE-OVERLAY,Short S&P 500 Sep25 Call 5600,SPXW,SPX0925C,Derivative,Short,Limit,Filled,USD,100,42.10,350,Goldman Sachs,K. Osei
+2026-06-02,2026-06-04,GROWTH-FUND,NVIDIA Corp.,NVDA,67066G104,Equity,Buy,VWAP,Filled,USD,2000,135.40,280,Morgan Stanley,J. Rivera
+2026-06-02,2026-06-04,INCOME-FUND,Procter & Gamble Co.,PG,742718109,Equity,Buy,Market,Filled,USD,2500,167.80,170,UBS,M. Chen
+2026-06-02,2026-06-04,BALANCED-SMA,NextEra Energy Inc.,NEE,65339F101,Equity,Buy,Limit,Filled,USD,4000,72.50,200,Bank of America,A. Patel
+2026-06-02,2026-06-04,INCOME-FUND,iShares Core US Aggregate Bond,AGG,464287200,Fund,Sell,Market,Filled,USD,5000,98.30,150,Citadel Securities,M. Chen
+2026-06-01,2026-06-03,GROWTH-FUND,Tesla Inc.,TSLA,88160R101,Equity,Cover,Market,Filled,USD,800,245.60,120,JPMorgan,J. Rivera
+2026-06-01,2026-06-03,HEDGE-OVERLAY,SPDR Gold Shares,GLD,78463V107,Commodity,Sell,Limit,Partially Filled,USD,1000,243.20,140,Morgan Stanley,K. Osei
